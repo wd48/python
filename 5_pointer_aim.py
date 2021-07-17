@@ -121,9 +121,10 @@ BUBBLE_WIDTH = 56
 BUBBLE_HEIGHT = 62
 RED = (255,0,0)
 # 화살표 관련 변수
-to_angle = 0 # 좌우 각도
-# 1.5도씩 움직이게 됨
-angle_speed = 1.5
+# to_angle = 0 # 좌우 각도
+to_angle_left = 0 # 왼쪽으로 움직일 각도 정보
+to_angle_right = 0 # 오른쪽으로 움직일 각도 정보
+angle_speed = 1.5 # 1.5도씩 움직이게 됨
 
 map = [] # 맵
 bubble_group = pygame.sprite.Group()
@@ -137,21 +138,27 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
         # 키를 누를 때
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                to_angle += angle_speed
+                to_angle_left += angle_speed                
             elif event.key == pygame.K_RIGHT:
-                to_angle -= angle_speed
+                to_angle_right -= angle_speed
+                # 왼쪽키를 누르다가 오른쪽키를 빨리 누르며 동시 누를때는 멈추지만
+                # 왼쪽을 때는 순간 오른쪽으로 가는 값이 작은 상태로 유지되기 때문에 오른쪽으로 움직인다
+
         #왼쪽 오른쪽 방향키를 때면 멈춘다
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT: 
-                to_angle = 0
+            if event.key == pygame.K_LEFT:
+                to_angle_left = 0
+            elif event.key == pygame.K_RIGHT:
+                to_angle_right = 0
+
 
     screen.blit(background, (0,0))
     bubble_group.draw(screen) 
-    # 회전 메소드
-    pointer.rotate(to_angle)
+    pointer.rotate(to_angle_left + to_angle_right) # 동시 누르면 멈추지만,     
     pointer.draw(screen)
     pygame.display.update()
 
