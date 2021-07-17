@@ -1,16 +1,17 @@
-# 천장 충돌처리
+# 버블 터트리기
 import os, random, math
 import pygame
 
 # 버블 클래스 생성
 class Bubble(pygame.sprite.Sprite):
-    # 버블 위치 기본값 지정
-    def __init__(self, image, color, position=(0,0)):
+    def __init__(self, image, color, position=(0,0), row_idx = -1, col_idx = -1):
         super().__init__()
         self.image = image
         self.color = color
         self.rect = image.get_rect(center=position)
         self.radius = 18 # 속도 지정변수
+        self.row_idx = row_idx
+        self.col_idx = col_idx
 
     # 버블 위치: 사각형 기준으로 중심에 버블을 둠
     def set_rect(self, position):
@@ -37,6 +38,11 @@ class Bubble(pygame.sprite.Sprite):
         if self.rect.left < 0 or self.rect.right > screen_width: 
             self.set_angle(180 - self.angle)
 
+    def set_map_index(self, row_idx, col_idx):
+        self.row_idx = row_idx
+        self.col_idx = col_idx
+
+
 # 발사대 클래스 생성
 class Pointer(pygame.sprite.Sprite):  
     def __init__(self, image, position, angle):
@@ -53,18 +59,14 @@ class Pointer(pygame.sprite.Sprite):
 
     # 회전
     def rotate(self, angle):
-        # 원래 가진 각도에 angle을 더해주는 식
         self.angle += angle
 
-        # 오른쪽 왼쪽 한계점 지정: 각도범위
-        if self.angle > 170: # 왼쪽 끝
+        if self.angle > 170:
             self.angle = 170
         elif self.angle < 10:
             self.angle = 10
 
-        # rotozoom(회전시킬객체, 회전각도, 회전크기)
         self.image = pygame.transform.rotozoom(self.original_image, self.angle, 1)
-        # self.image의 각도정보는 계속 바뀐다 : 중심좌표가 바뀔수 있다
         self.rect = self.image.get_rect(center = self.position)     
 
 # 맵 만들기
@@ -90,7 +92,7 @@ def setup():
                 continue # . , / 이면 무시하고 지나간다 = 다음 줄 실행
             position = get_bubble_position(row_idx, col_idx)
             image = get_bubble_image(col)
-            bubble_group.add(Bubble(image, col, position))
+            bubble_group.add(Bubble(image, col, position, row_idx, col_idx))
 
 def get_bubble_position(row_idx, col_idx):
     pos_x = col_idx * CELL_SIZE + (BUBBLE_WIDTH // 2)
@@ -115,7 +117,6 @@ def get_bubble_image(color):
 
 def prepare_bubbles():
     global curr_bubble, next_bubble
-    # 다음 버블이 있으면 다음 버블을 현재 버블로 바꿔준다
     if next_bubble:
         curr_bubble = next_bubble
     else:
@@ -134,8 +135,8 @@ def create_bubble():
 def get_random_bubble_color():
     colors = []
     for row in map:
-        for col in row: # RRYYBBGG
-            if col not in colors and col not in [".", "/"]: # 아직 없는 색깔일때, 비어있는 위치가 아닐 경우
+        for col in row:
+            if col not in colors and col not in [".", "/"]:
                 colors.append(col)
     return random.choice(colors)
 
@@ -145,10 +146,11 @@ def get_random_bubble_color():
 def process_collision(): 
     global curr_bubble, fire
     hit_bubble = pygame.sprite.spritecollideany(curr_bubble, bubble_group, pygame.sprite.collide_mask)
-    # 천장에 닿는 조건 추가
+    # 천장에 닿았을 때
     if hit_bubble or curr_bubble.rect.top <= 0:
         row_idx, col_idx = get_map_index(*curr_bubble.rect.center) # x,y
         place_bubble(curr_bubble, row_idx, col_idx)
+        remove_adjacent_bubbles(row_idx, col_idx, curr_bubble.color)
         curr_bubble = None
         fire = False
 
@@ -156,7 +158,7 @@ def get_map_index(x, y):
     row_idx = y // CELL_SIZE
     col_idx = x // CELL_SIZE
     # 실제 위치 계산 (홀수줄의 경우: 위에서 홀수줄은 cell_size의 반만큼 이동시켜놨음)
-    if col_idx % 2 == 1:
+    if row_idx % 2 == 1:
         col_idx = (x - (CELL_SIZE // 2)) // CELL_SIZE
         if col_idx < 0:
             col_idx = 0
@@ -168,7 +170,50 @@ def place_bubble(bubble, row_idx, col_idx):
     map[row_idx][col_idx] = bubble.color
     position = get_bubble_position(row_idx, col_idx)
     bubble.set_rect(position)
+    bubble.set_map_index(row_idx, col_idx)
     bubble_group.add(bubble)
+
+def remove_adjacent_bubbles(row_idx, col_idx, color):
+    visited.clear()
+    visit(row_idx, col_idx, color)
+    if len(visited) >= 3:
+        remove_visited_bubbles()
+
+def visit(row_idx, col_idx, color):
+    # 1 맵의 범위를 벗어나는지 확인
+    if row_idx < 0 or col_idx >= MAP_ROW_COUNT or col_idx < 0 or col_idx >= MAP_COLUMN_COUNT:
+        return
+    
+    # 2 현재 Cell 색상이 color와 같은지 확인 : 다르면 방문에 기록안함
+    if map[row_idx][col_idx] != color:
+        return
+    
+    # 3 이미 방문한 경우를 확인 : 다시 방문할 필요 없음
+    if (row_idx, col_idx) in visited:
+        return
+    
+    # 방문처리
+    visited.append((row_idx, col_idx))
+    # 왼쪽위 아래
+    rows = [0, -1, -1, 0, 1, 1]
+    cols = [-1, -1, 0 ,1, 0, -1]
+    if row_idx % 2 == 1:
+        # 오른쪽위 아래
+        rows = [0, -1, -1, 0, 1, 1]
+        cols = [-1, 0, 1, 1, 1, 0]
+    
+    for i in range(len(rows)):
+        # 현재 위치에서 방문할 수 있는 곳을 다 찾아본다
+        visit(row_idx + rows[i], col_idx + cols[i], color)
+
+def remove_visited_bubbles():
+    # 버블그룹에서 하나 가져와서 비교
+    # 버블이 몇번째 r,c 가 방문기록(visited)에 있으면 없애주기 위함
+    bubbles_to_remove = [b for b in bubble_group if (b.row_idx, b.col_idx) in visited]
+    for bubble in bubbles_to_remove:
+        map[bubble.row_idx][bubble.col_idx] = "." # 해당 맵의 cell 삭제
+        bubble_group.remove(bubble)
+
 
 pygame.init()
 screen_width = 448
@@ -215,6 +260,7 @@ next_bubble = None # 다음에 쏠 버블
 fire = False
 
 map = [] # 맵
+visited = [] # 방문기록
 bubble_group = pygame.sprite.Group()
 setup()
 
