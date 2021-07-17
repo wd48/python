@@ -52,6 +52,8 @@ class Bubble(pygame.sprite.Sprite):
         self.row_idx = row_idx
         self.col_idx = col_idx
 
+    def drop_downward(self, height):
+        self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery + height))
 
 # 발사대 클래스 생성
 class Pointer(pygame.sprite.Sprite):  
@@ -256,6 +258,17 @@ def draw_bubbles():
 
     for bubble in bubble_group:
         bubble.draw(screen, to_x)
+
+def drop_wall():
+    # 벽 길이로 조절
+    # 전체 버블위치 조정
+    global wall_height, curr_fire_count
+    wall_height += CELL_SIZE
+    for bubble in bubble_group:
+        bubble.drop_downward(CELL_SIZE)
+    curr_fire_count = FIRE_COUNT
+
+
 pygame.init()
 screen_width = 448
 screen_height = 720
@@ -266,7 +279,8 @@ clock = pygame.time.Clock()
 # 배경이미지 불러오기
 current_path = os.path.dirname(__file__)
 background = pygame.image.load(os.path.join(current_path, "background.png"))
-
+# 벽 이미지 불러오기
+wall = pygame.image.load(os.path.join(current_path, "wall.png"))
 # 버블 이미지 불러오기
 bubble_images = [
     pygame.image.load(os.path.join(current_path, "red.png")).convert_alpha(),
@@ -301,6 +315,7 @@ curr_bubble = None # 이번에 쏠 버블
 next_bubble = None # 다음에 쏠 버블
 fire = False
 curr_fire_count = FIRE_COUNT
+wall_height = 0 # 화면에 보여지는 벽의 높이
 
 map = [] # 맵
 visited = [] # 방문기록
@@ -343,8 +358,12 @@ while running:
     if fire:
         process_collision() # 충돌 함수
 
+    if curr_fire_count == 0:
+        drop_wall()
+
     screen.blit(background, (0,0))
-    # bubble_group.draw(screen)
+    screen.blit(wall, (0, wall_height - screen_height))
+
     draw_bubbles()
     pointer.rotate(to_angle_left + to_angle_right)
     pointer.draw(screen)
