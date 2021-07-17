@@ -173,21 +173,27 @@ def place_bubble(bubble, row_idx, col_idx):
     bubble.set_map_index(row_idx, col_idx)
     bubble_group.add(bubble)
 
+# 방문기록과 비교해서 버블이 3개이상 겹치면 지우기
 def remove_adjacent_bubbles(row_idx, col_idx, color):
     visited.clear()
     visit(row_idx, col_idx, color)
     if len(visited) >= 3:
         remove_visited_bubbles()
+        remove_hanging_bubbles()
 
-def visit(row_idx, col_idx, color):
+def visit(row_idx, col_idx, color=None):
+    # 색 상관없이 방문해라
     # 1 맵의 범위를 벗어나는지 확인
     if row_idx < 0 or col_idx >= MAP_ROW_COUNT or col_idx < 0 or col_idx >= MAP_COLUMN_COUNT:
         return
     
     # 2 현재 Cell 색상이 color와 같은지 확인 : 다르면 방문에 기록안함
-    if map[row_idx][col_idx] != color:
+    # > color None 조건추가로 인한 수정 필요 : color 선언하면 색이 "있다"는 것임
+    if color and map[row_idx][col_idx] != color:
         return
-    
+    # 빈 공간이거나 버블이 존재할 수 없는 위치인지 확인
+    if map[row_idx][col_idx] in [".", "/"]:
+        return
     # 3 이미 방문한 경우를 확인 : 다시 방문할 필요 없음
     if (row_idx, col_idx) in visited:
         return
@@ -214,6 +220,21 @@ def remove_visited_bubbles():
         map[bubble.row_idx][bubble.col_idx] = "." # 해당 맵의 cell 삭제
         bubble_group.remove(bubble)
 
+def remove_not_visited_bubbles():
+    # not in visited : 방문기록에 없는 버블들의 경우 구동
+    bubbles_to_remove = [b for b in bubble_group if (b.row_idx, b.col_idx) not in visited]
+    for bubble in bubbles_to_remove:
+        map[bubble.row_idx][bubble.col_idx] = "."
+        bubble_group.remove(bubble)
+
+def remove_hanging_bubbles():
+    visited.clear()
+    for col_idx in range(MAP_COLUMN_COUNT):
+        if map[0][col_idx] != ".": # 첫번째 줄에서 비어있는것이 아닌 경우
+            # 색깔 무시 : 버블끼리는 걍 붙어있음
+            visit(0, col_idx)
+    # 방문하지 않은 버블 삭제
+    remove_not_visited_bubbles()
 
 pygame.init()
 screen_width = 448
