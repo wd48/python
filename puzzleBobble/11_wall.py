@@ -108,7 +108,7 @@ def setup():
 
 def get_bubble_position(row_idx, col_idx):
     pos_x = col_idx * CELL_SIZE + (BUBBLE_WIDTH // 2)
-    pos_y = row_idx * CELL_SIZE + (BUBBLE_HEIGHT // 2)
+    pos_y = row_idx * CELL_SIZE + (BUBBLE_HEIGHT // 2) + wall_height
     if row_idx % 2 == 1:
         pos_x += CELL_SIZE // 2
     return pos_x, pos_y
@@ -158,8 +158,8 @@ def get_random_bubble_color():
 def process_collision(): 
     global curr_bubble, fire, curr_fire_count
     hit_bubble = pygame.sprite.spritecollideany(curr_bubble, bubble_group, pygame.sprite.collide_mask)
-    # 천장에 닿았을 때
-    if hit_bubble or curr_bubble.rect.top <= 0:
+    # 천장에 닿았을 때 : 벽이 있음을 추가해줘야함
+    if hit_bubble or curr_bubble.rect.top <= wall_height:
         row_idx, col_idx = get_map_index(*curr_bubble.rect.center) # x,y
         place_bubble(curr_bubble, row_idx, col_idx)
         remove_adjacent_bubbles(row_idx, col_idx, curr_bubble.color)
@@ -168,7 +168,8 @@ def process_collision():
         curr_fire_count -= 1
 
 def get_map_index(x, y):
-    row_idx = y // CELL_SIZE
+    # y에 벽사이즈 만큼을 빼고난 뒤에 기준값을 잡도록 구현해야함
+    row_idx = (y - wall_height) // CELL_SIZE
     col_idx = x // CELL_SIZE
     # 실제 위치 계산 (홀수줄의 경우: 위에서 홀수줄은 cell_size의 반만큼 이동시켜놨음)
     if row_idx % 2 == 1:
@@ -181,6 +182,7 @@ def get_map_index(x, y):
     
 def place_bubble(bubble, row_idx, col_idx):
     map[row_idx][col_idx] = bubble.color
+    # 벽이 내려올 경우 적용필요
     position = get_bubble_position(row_idx, col_idx)
     bubble.set_rect(position)
     bubble.set_map_index(row_idx, col_idx)
@@ -260,7 +262,7 @@ def draw_bubbles():
         bubble.draw(screen, to_x)
 
 def drop_wall():
-    # 벽 길이로 조절
+    # 벽 길이로 조절 > 현재문제 : wall_height를 스크린사이즈에 반영되지 않아서 문제
     # 전체 버블위치 조정
     global wall_height, curr_fire_count
     wall_height += CELL_SIZE
