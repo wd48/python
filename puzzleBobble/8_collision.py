@@ -1,5 +1,5 @@
 # 충돌 처리 1 : 기본 충돌로직 설계
-
+# 충돌 처리 2 : 버블이 양 끝 구석에 던져지면서 벽에 부딪히면서 바로 버블에 부딪힐 때
 import os, random, math
 import pygame
 
@@ -142,19 +142,38 @@ def get_random_bubble_color():
     return random.choice(colors)
 
 # 충돌함수
+# 충돌 발생시 현재위치(센터기준), 어떤 컬럼에 있는지 맵에 추가하고 컬럼위치들도 바꿔주고 bubble_group에 추가해서 다음 충돌에 대비할
+# 버블을 현재 맵에 업데이트 시켜준다
 def process_collision(): 
+    global curr_bubble, fire
     # 충돌한 버블 (충돌한버블, sprite그룹, 진짜이미지비교)
     hit_bubble = pygame.sprite.spritecollideany(curr_bubble, bubble_group, pygame.sprite.collide_mask)
     # 충돌이 있을 경우
     if hit_bubble:
         row_idx, col_idx = get_map_index(*curr_bubble.rect.center) # x,y
-    # * : unpacking > 하나를 나눠서 2개의 매개변수로 준다
+        # * : unpacking > 하나를 나눠서 2개의 매개변수로 준다
+        # 1. 현재버블을 현재맵기준으로 이동 2. 버블을 버블 그룹에 넣어주면 끝
+        place_bubble(curr_bubble, row_idx, col_idx)
+        curr_bubble = None
+        fire = False
+
 def get_map_index(x, y):
     row_idx = y // CELL_SIZE
     col_idx = x // CELL_SIZE
     # 실제 위치 계산 (홀수줄의 경우: 위에서 홀수줄은 cell_size의 반만큼 이동시켜놨음)
     if col_idx % 2 == 1:
         col_idx = (x - (CELL_SIZE // 2)) // CELL_SIZE
+        if col_idx < 0:
+            col_idx = 0
+        elif col_idx > MAP_COLUMN_COUNT - 2:
+            col_idx = MAP_COLUMN_COUNT - 2    
+    return row_idx, col_idx
+    
+def place_bubble(bubble, row_idx, col_idx):
+    map[row_idx][col_idx] = bubble.color
+    position = get_bubble_position(row_idx, col_idx)
+    bubble.set_rect(position)
+    bubble_group.add(bubble)
 
 pygame.init()
 screen_width = 448
@@ -187,6 +206,8 @@ CELL_SIZE = 56
 BUBBLE_WIDTH = 56
 BUBBLE_HEIGHT = 62
 RED = (255,0,0)
+MAP_ROW_COUNT = 11
+MAP_COLUMN_COUNT = 8
 
 # 화살표 관련 변수
 # to_angle = 0 # 좌우 각도
