@@ -1,6 +1,6 @@
 # 버블 발사
 # 1. 발사대 버블 추가 2. 각도변동 시 버블발사 방향 변경 3. 벽에 닿을 때 튕겨나가게 각도 계산
-import os, random
+import os, random, math
 import pygame
 
 # 버블 클래스 생성
@@ -11,15 +11,38 @@ class Bubble(pygame.sprite.Sprite):
         self.image = image
         self.color = color
         self.rect = image.get_rect(center=position)
+        self.radius = 18 # 속도 지정변수
+
     # 버블 위치: 사각형 기준으로 중심에 버블을 둠
     def set_rect(self, position):
         self.rect = self.image.get_rect(center = position)
+
     # 화면에 버블을 출력
     def draw(self, screen):
         screen.blit(self.image, self.rect)
 
+    # 버블이 이동해야하는 각도 저장필요
+    def set_angle(self, angle):        
+        self.angle = angle
+        # 발사 각도에 따라 어느 좌표로 움직일지 계산 : 삼각함수 math
+        # 삼각함수 > 호도법 > 라디안 : 60분법 기준으로 들어오면 라디안으로 변환시켜는 math 함수임
+        self.rad_angle = math.radians(self.angle)
+
+    def move(self):
+        to_x = self.radius * math.cos(self.rad_angle)
+        to_y = self.radius * math.sin(self.rad_angle) * -1 
+        # y : 위로갈수록 + (그래프)
+        # pygame : 맨위가 0,0 > 아래로 내려올수록 (-)
+    
+        self.rect.x += to_x
+        self.rect.y += to_y
+
+        # 튕겨나오는 계산
+        if self.rect.left < 0 or self.rect.right > screen_width:
+            self.set_angle(180 - self.angle)
+
 # 발사대 클래스 생성
-class Pointer(pygame.sprite.Sprite):
+class Pointer(pygame.sprite.Sprite):  
     def __init__(self, image, position, angle):
         super().__init__()
         self.image = image
@@ -150,6 +173,7 @@ CELL_SIZE = 56
 BUBBLE_WIDTH = 56
 BUBBLE_HEIGHT = 62
 RED = (255,0,0)
+
 # 화살표 관련 변수
 # to_angle = 0 # 좌우 각도
 to_angle_left = 0 # 왼쪽으로 움직일 각도 정보
@@ -157,6 +181,9 @@ to_angle_right = 0 # 오른쪽으로 움직일 각도 정보
 angle_speed = 1.5 # 1.5도씩 움직이게 됨
 
 curr_bubble = None # 이번에 쏠 버블
+# 발사여부: 발사하는 동안 버블 발사안되게 막는 변수
+# False : 발사중이 아니다 = 발사할 수 있다
+fire = False
 
 map = [] # 맵
 bubble_group = pygame.sprite.Group()
@@ -177,6 +204,14 @@ while running:
                 to_angle_left += angle_speed                
             elif event.key == pygame.K_RIGHT:
                 to_angle_right -= angle_speed
+            elif event.key == pygame.K_SPACE: # 스페이스키 눌렀을 때
+                # 버블 확인+발사상태 확인 / 발사
+                if curr_bubble and not fire:
+                    fire = True
+                    # 쏠때 발사각도 지정
+                    curr_bubble.set_angle(pointer.angle)
+
+            
                 # 왼쪽키를 누르다가 오른쪽키를 빨리 누르며 동시 누를때는 멈추지만
                 # 왼쪽을 때는 순간 오른쪽으로 가는 값이 작은 상태로 유지되기 때문에 오른쪽으로 움직인다
 
@@ -197,7 +232,13 @@ while running:
     pointer.rotate(to_angle_left + to_angle_right) # 동시 누르면 멈추지만,     
     pointer.draw(screen)
     if curr_bubble:
+        if fire:
+            curr_bubble.move() # 지정된 각도만큼 이동하고 프레임적용 이동하고 프레임 적용
         curr_bubble.draw(screen)
+        # 천장보다 작다 : 화면박으로 버블이 벗어났을 때 새로운 버블 생성시킨다
+        if curr_bubble.rect.top <= 0:
+            curr_bubble = None
+            fire = False
 
     pygame.display.update()
 
