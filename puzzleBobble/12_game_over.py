@@ -1,8 +1,19 @@
 # 게임 종료 처리
 # 성공 : 화면 내 모든 버블이 사라진다
 # 실패 : 바닥에 정해진 높이보다 버블이 낮게 내려오면 실패
-import os, random, math
+import os, random, math, sys
 import pygame
+
+def resource_path(relative_path):
+# """ Get absolute path to resource, works for dev and for PyInstaller """
+    try: 
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
+file = resource_path("readme_text_files\\readme1.txt")
 
 # 버블 클래스 생성
 class Bubble(pygame.sprite.Sprite):
@@ -81,14 +92,44 @@ class Pointer(pygame.sprite.Sprite):
 # 맵 만들기
 def setup():
     global map
-    map = [        
-        list("RRYYBBGG"),
-        list("RRYYBBG/"), # / : 버블이 위치할 수 없는 곳
-        list("BBGGRRYY"),
-        list("BGGRRYY/"),
-        list("........"),
-        list("......./"),
-        list("........"),
+    # map = [        
+    #     list("RRYYBBGG"),
+    #     list("RRYYBBG/"),
+    #     list("BBGGRRYY"),
+    #     list("BGGRRYY/"),
+    #     list("........"),
+    #     list("......./"),
+    #     list("........"),
+    #     list("......./"),
+    #     list("........"),
+    #     list("......./"),
+    #     list("........")
+    # ]
+    
+    # # lv2
+    # map = [
+    #     list("...YY..."),
+    #     list("...G.../"),
+    #     list("...R...."),
+    #     list("...B.../"),
+    #     list("...R...."),
+    #     list("...G.../"),
+    #     list("...P...."),
+    #     list("...P.../"),
+    #     list("........"),
+    #     list("......./"),
+    #     list("........")
+    # ]    
+
+    # lv3
+    map = [
+        list("G......G"),
+        list("RGBYRGP/"),
+        list("P......Y"),
+        list("BYRGBYR/"),
+        list("...R...."),
+        list("...G.../"),
+        list("...R...."),
         list("......./"),
         list("........"),
         list("......./"),
@@ -413,5 +454,5 @@ while running:
 
     pygame.display.update()
 
-pygame.time.delay(3000)
+pygame.time.delay(5000)
 pygame.quit()
