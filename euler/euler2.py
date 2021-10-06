@@ -1,48 +1,49 @@
 # 피보나치 수열에서 짝수이면서 4백만 이하인 값을 모두 더하기
 
-# n1 = 0
-# n2 = 1
-# n3 = n1+n2
-# result = 0
+# 1
+n1 = 0
+n2 = 1
+n3 = n1+n2
+result = 0
 
-# while n3 <= 4000000:
-#     n3 = n1+n2
-#     n1 = n2
-#     n2 = n3
+while n3 <= 4000000:
+    n3 = n1+n2
+    n1 = n2
+    n2 = n3
 
-#     if n3 % 2==0:
-#         result += n3
+    if n3 % 2==0:
+        result += n3
 
-# print(result)
+print(result)
 
 # 2
-# class Fibonacci:
-#     # 초기화
-#     def __init__(self):
-#         self.a = 0
-#         self.b = 1
+class Fibonacci:
+    # 초기화
+    def __init__(self):
+        self.a = 0
+        self.b = 1
 
-#     def __iter__(self):
-#         return self
+    def __iter__(self):
+        return self
 
-#     def __next__(self):
-#         c = self.a + self.b
-#         if self.a > self.b:
-#             self.b = c
-#         else:
-#             self.a = c
-#         return c
+    def __next__(self):
+        c = self.a + self.b
+        if self.a > self.b:
+            self.b = c
+        else:
+            self.a = c
+        return c
 
-# if __name__ == '__main__':
-#     s = 0
-#     fibonacci = Fibonacci()
-#     for n in fibonacci:
-#         if n >= 4000000:
-#             break
-#         else:
-#             if n % 2 == 0:
-#                 s += n
-#     print(s)
+if __name__ == '__main__':
+    s = 0
+    fibonacci = Fibonacci()
+    for n in fibonacci:
+        if n >= 4000000:
+            break
+        else:
+            if n % 2 == 0:
+                s += n
+    print(s)
 
 # 3
 # fibo_odd_sum : 짝수일 때 합
