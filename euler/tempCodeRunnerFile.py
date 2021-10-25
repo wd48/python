@@ -1,14 +1,16 @@
-def is_pythaforean_triple(a,b,c):
-    return c > b > a and a**2+b**2 == c**2
+# 소수를 담을 list 선언
+a = []
+# 200만 이하의 소수판별 이중 for문 
+for i in range(2000001):
+    result = True
+    # 소수 : 1을 제외하므로 False
+    if(i<2):
+        result = False
+    # 
+    for j in range(2, i):
+        if i%j == 0:
+            result = False
+    if result:
+        a.append(i)
 
-def problem9():
-    for i in range(1, 1000):
-        for j in range(i+1, 1000):
-            for k in range(j+1, 1000):
-                if i+j+k == 1000 and is_pythaforean_triple(i,j,k):
-                    print(i,j,k)
-                    print(i*j*k)
-                    return i,j,k
-
-a,b,c = problem9()
-print("problem9 def is... ",a*b*c)
+print(sum(a))
