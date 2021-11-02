@@ -105,14 +105,14 @@ data='''37107287533902102798797998220837590246510135740250
 '''
 
 # 줄바꿈 문자로 잘라주면, 1차원 배열로 변수에 담긴다
-data = data.split()
+data_line = data.split()
 # print(data)
 
 # 공백기준으로 잘라서 2차원 리스트
 numbers = 0
-for i in data:
+for i in data_line:
     numbers += int(i)
-print(str(numbers)[:10])
+print(str(numbers)[0:10])
 
 # ref.
 f=open("E:/python/euler/euler13_data.txt", 'r')
