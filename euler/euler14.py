@@ -106,3 +106,65 @@ while i<1000000:
     i+=1
 print(maxVal)
 print("calculation time: ",time.time()-start_time)
+
+# 같은 방식
+import time
+start_time = time.time()
+
+def collatz(n):
+    if n == 1: return 1
+    elif n%2==0:
+        return collatz(n/2) +1
+    else:
+        return collatz(n*3+1) +1
+
+i=1;maxVal=0
+
+while i<1000000:
+    val = collatz(i)
+    if val>maxVal :
+        maxVal = val
+    i+=1
+print(maxVal)
+print("calculation time: ", time.time()-start_time)
+
+# 속도 개선
+# 루프마다 중복된 계산을 실행하기 때문에 느리다
+# 방법
+# 중복된 계산값을 메모리에 저장하고 시간 절약하는 다이나믹 프로그래밍(Dynamic Programming)
+
+# 루프값 10 = cache{13:10} < 딕셔너리 타입 변수에 저장
+# 불러낼 때는 cache[13]
+# cache : 모든 결과값을 저장하므로 계산이 진행될수록 점점 커짐
+
+import time
+start_time = time.time()
+
+def collatz(n):
+    count=1
+    while n != 1:
+        # 수열만들면서 저장값 확인
+        if (n) in cache :
+            # 저장값이 있으면 저장된 값으로 대체
+            count += cache[n]-1:
+            n = 1
+        else :
+            if n%2 == 0:
+                n=n/2
+            else:
+                n=n*3+1
+            count+=1
+    return count
+
+cache={}
+i=1;maxVal=0
+
+while i<1000000:
+    val = collatz(i)
+    if val > maxVal :
+        maxVal = val
+    cache[i] = val
+    i+=1
+
+print(maxVal)
+print("calculation time: ", time.time()-start_time)
