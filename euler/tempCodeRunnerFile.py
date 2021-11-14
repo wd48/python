@@ -26,6 +26,8 @@ while i<1000000:
         maxVal = val
     cache[i] = val
     i+=1
+    print(collatz(i))
 
 print(maxVal)
+print(val)
 print("calculation time: ", time.time()-start_time)

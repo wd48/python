@@ -146,7 +146,7 @@ def collatz(n):
         # 수열만들면서 저장값 확인
         if (n) in cache :
             # 저장값이 있으면 저장된 값으로 대체
-            count += cache[n]-1:
+            count += cache[n]-1
             n = 1
         else :
             if n%2 == 0:
@@ -167,4 +167,5 @@ while i<1000000:
     i+=1
 
 print(maxVal)
+print(val)
 print("calculation time: ", time.time()-start_time)
