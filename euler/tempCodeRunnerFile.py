@@ -24,10 +24,11 @@ while i<1000000:
     val = collatz(i)
     if val > maxVal :
         maxVal = val
+        starting = i
     cache[i] = val
     i+=1
-    print(collatz(i))
 
 print(maxVal)
 print(val)
+print(starting)
 print("calculation time: ", time.time()-start_time)

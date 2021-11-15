@@ -163,9 +163,56 @@ while i<1000000:
     val = collatz(i)
     if val > maxVal :
         maxVal = val
+        starting = i
     cache[i] = val
     i+=1
 
 print(maxVal)
 print(val)
+print(starting)
 print("calculation time: ", time.time()-start_time)
+
+#Generating Collatz sequence 
+def collatz(n): 
+    # 값을 담는 리스트 seq
+    seq=[n] 
+    while n!=1: 
+        if n%2 ==0: 
+            n=n/2 
+            seq.append(n) 
+        else: 
+            n=3*n+1 
+            seq.append(n) 
+    return seq 
+
+max_length = 1 
+for i in range(1,1000000): 
+    if max_length < len(collatz(i)): 
+        max_length=len(collatz(i)) 
+        starting=i 
+        
+print(starting, max_length)
+
+## ref
+# 한번의 싸이클
+def hail(n):
+    if n%2==0 : n=n/2
+    else : n=3*n+1
+    return n
+# 싸이클을 몇번 반복하는지
+def count(n):
+    cnt=0
+    while n>1:
+        cnt+=1
+        n=hail(n)
+    return cnt
+# 싸이클 횟수가 최대인 항 찾기
+list=[]
+for i in range(1,1000001):
+    list.append(count(i))
+
+m=max(list)
+k=list.index(m)
+
+#답
+print(k+1)
