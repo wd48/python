@@ -1,9 +1,10 @@
-def factorial(n):
-    f=1
-    for i in range(1, n+1):
-        f=f*i
-    return f
+# 16번, 제곱수 각자리의 합
 
-a,b = map(int, input('가로세로 몇?').split())
+num_string = str(2**1000)
 
-print(int(factorial(a+b)/(factorial(a)*factorial(b))))
+i = 0
+total = 0
+
+for i in num_string:
+    total = total + int(i)
+print(total)
