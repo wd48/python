@@ -1,5 +1,5 @@
 # 삼각형 모양의 숫자 배열을 따라 가장 큰 합을 찾는 문제
-
+# https://mingrammer.com/project-euler-maximum-path-sum/
 triangle = """
 75
 95 64
