@@ -26,3 +26,54 @@ for y in range(1900,2001):
             total+=1
  
 print(total)
+
+# 윤달 조건문
+# 4년마다 윤달 때문에 하루가 길어져서
+# 4년마다 2월달에 하루씩 추가함 (m=1)
+daylist = [31,28,31,30,31,30,31,31,30,31,30,31]
+total=0
+
+for y in range(1900,2001):
+    for m in range(12):
+        day=daylist[m]
+        if y%4==0 and m==1:
+            day+=1
+        for d in range(day):
+            total+=1
+
+print(total)
+
+
+# 요일 계산 : 일요일
+# 7로 나눠서 일요일인 날만 출력한 결과
+daylist = [31,28,31,30,31,30,31,31,30,31,30,31]
+total = 0
+
+for y in range(1900, 2001):
+    for m in range(12):
+        day=daylist[m]
+        if y%4==0 and m==1:
+            day+=1
+        for d in range(day):
+            if total%7==6:
+                print(y, m+1, d+1)
+            total+=1
+print(total)
+
+
+# 요일 카운트
+
+daylist = [31,28,31,30,31,30,31,31,30,31,30,31]
+total = 0
+count = 0
+
+for y in range(1900, 2001):
+    for m in range(12):
+        day=daylist[m]
+        if y%4==0 and m==1:
+            day+=1
+        for d in range(day):
+            if y>1900 and d==0 and total%7==6:
+                count+=1
+            total+=1
+print(total, count)
