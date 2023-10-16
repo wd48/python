@@ -16,19 +16,27 @@
   이것은 직접 구현해보자
 '''
 
+
 def proper_divisors(n):
     """자연수 n의 진약수를 구하여 집합으로 반환한다."""
-    answer = {1}
-    for div in range(2, int(n**0.5) + 1):
-        q, r = divmod(n, div)
-        # not r : r이 0인 경우
-        if not r:
-            answer.update([q, div])
-    return answer
+    # answer = {1}
+    # for div in range(2, int(n**0.5) + 1):
+    #    q, r = divmod(n, div)
+    #    # not r : r이 0인 경우
+    #    if not r:
+    #        answer.update([q, div])
+    # return answer
+  # 직접 진약수의 합을 반환하도록 수정
+    divisors_sum = 0
+    for div in range(1, n):
+        if n % div == 0:
+            divisors_sum += div
+    return divisors_sum
+
 
 if __name__ == "__main__":
-    print(f"220의 진약수: {sorted(proper_divisors(220))}")
-    print(f"16의 진약수: {sorted(proper_divisors(16))}")
+    print(f"220의 진약수의 합: {proper_divisors(220)}")
+    print(f"16의 진약수의 합: {proper_divisors(16)}")
 
 
 '''
@@ -37,10 +45,13 @@ if __name__ == "__main__":
   proper_divisors 함수에서 받은 값을 sum()으로 더한다.
   * 진약수의 합(m)을 다시 proper_divisors 함수에 넣어 구한 값이 주어진 수(n)와 같으면 친화수이다.
 '''
+
+
 def is_amicable(n):
     """n이 친화수이면 true, 아니면 false를 반환한다."""
-    m = sum(proper_divisors(n))
-    return True if n == sum(proper_divisors(m)) else False
+    m = proper_divisors(n)
+    return True if n == proper_divisors(m) else False
+
 
 if __name__ == "__main__":
     print(f"is 220 amicable number? -> {is_amicable(220)}")
@@ -56,14 +67,18 @@ if __name__ == "__main__":
   * is_amicable 함수의 코드를 solution 함수에 넣자
 '''
 
+
 def Q21_v21(n):
     """n 미만의 친화수를 모두 구하여 더한다."""
     answer = 0
     for a in range(2, n):
-        b = sum(proper_divisors(a))
-        if (n > b > a) and a == sum(proper_divisors(b)):
+        # b = sum(proper_divisors(a))
+        # if (n > b > a) and a == sum(proper_divisors(b)):
+        b = proper_divisors(a)
+        if (n > a > b) and a == proper_divisors(b):
             answer += (a+b)
     return answer
 
+
 if __name__ == "__main__":
-    print(Q21_v21(300))
+    print(Q21_v21(10000))
