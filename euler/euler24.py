@@ -13,21 +13,21 @@
 
 # permutations 함수를 이용하여 풀기
 
-from itertools import permutations
+# from itertools import permutations
 
 
-def Q24_v1(iters, n):
-    """iters로 만드는 순열에서 n번째 순열을 찾는다"""
-    for i, term in enumerate(permutations(iters), 1):
-        if i == n:
-            return ''.join(term)
+# def Q24_v1(iters, n):
+#     """iters로 만드는 순열에서 n번째 순열을 찾는다"""
+#     for i, term in enumerate(permutations(iters), 1):
+#         if i == n:
+#             return ''.join(term)
 
 
-if __name__ == "__main__":
-    print("0123456789의 사전식 순열")
-    print("="*20)
-    for i in range(1000):
-        print(f"{i+1:2}번째 순열: {Q24_v1('0123456789', i+1)}")
+# if __name__ == "__main__":
+#     print("0123456789의 사전식 순열")
+#     print("="*20)
+#     for i in range(1000):
+#         print(f"{i+1:2}번째 순열: {Q24_v1('0123456789', i+1)}")
 
 
 # https://opentutorials.org/module/3075/18309
@@ -50,17 +50,12 @@ if __name__ == "__main__":
 
 
 def get_next_permutation(string):
-    i = len(string)-2  # i=8
+    i = len(string)-2
     while i >= 0:
-        # string[8] < string[9]? => true
         if string[i] < string[i+1]:
-            # target = sorted(string[8:])
             target = sorted(string[i:])
-            print('target : ', target)
             new_num = target.pop(target.index(string[i])+1)
-            print('new_num : ', new_num)
             last_nums = ''.join(target)
-            print('last_nums : ', last_nums)
             return string[:i] + new_num + last_nums
         i -= 1
 
